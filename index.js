@@ -23,6 +23,12 @@ const leapControl = {
 
   startSound : (soundSpec) => {
     leapControl.stopSound();
+    if (soundSpec === undefined) {
+      soundSpec = {
+        frequency: 440,
+        volume: 1
+      }
+    }
     leapControl.theSound = leapControl.makeSineSound(soundSpec.frequency);
     leapControl.theSound.volume = soundSpec.volume;
     leapControl.theSound.attack = 1;
@@ -31,6 +37,14 @@ const leapControl = {
     leapControl.soundInPlay = true;
     leapControl.lastSoundSpec.frequency = soundSpec.frequency;
     leapControl.lastSoundSpec.volume = soundSpec.volume;
+  },
+
+  togglePlayState: () => {
+    if (leapControl.soundInPlay) {
+      leapControl.stopSound();
+    } else {
+      leapControl.startSound();
+    }
   },
 
   changeSound: (soundSpec) => {
@@ -75,9 +89,9 @@ const leapControl = {
         if (changeMade) {
           //console.log('new freq, vol:', soundSpec.frequency, soundSpec.volume);
           leapControl.changeSound(soundSpec);
-          $('#frequency').html(soundSpec.frequency);
+          $('#frequency').html('Frequency: ' + soundSpec.frequency);
           const volPercent = parseInt(soundSpec.volume * 100);
-          $('#volume').html(volPercent + '%');
+          $('#volume').html('Volume: ' + volPercent + '%');
         }
       }
     });
@@ -136,30 +150,22 @@ const leapControl = {
 
 let cursorPosition;
 $('#start').click(() => {
-  leapControl.startSound({ 
-//    frequency: 440,
-//    volume: cursorPosition.y / window.innerHeight 
-    frequency: 400,
-    volume: 1
-  });
+  leapControl.startSound();
 });
 
 $('#stop').click(() => {
   leapControl.stopSound();
 });
 
-/*
-window.onmousemove = (e) => {
-  cursorPosition = { x: e.clientX, y: e.clientY };
-  leapControl.changeSound({
-    frequency: cursorPosition.x, 
-    volume: cursorPosition.y / window.innerHeight 
-  });
-}
-*/
-
 $('body').ready(() => {
   leapControl.init();
+});
+
+$('body').keyup((e) => {
+  const keyCode = e.which;
+  if (keyCode === 32) {
+    leapControl.togglePlayState();
+  }
 });
 
 lastMinV = 10000;
